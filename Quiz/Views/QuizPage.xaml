@@ -1,12 +1,33 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Quiz.ViewModels"
              x:Class="Quiz.Views.QuizPage"
-             Title="QuizPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="Quiz"
+             IconImageSource="quiz.png"
+             x:DataType="vm:QuizViewModel">
+    <StackLayout>
+        <Button Text="Démarrer le Quiz"
+                Command="{Binding StartQuizCommand}"
+                IsVisible="{Binding CurrentQuestion, Converter={StaticResource NullToBoolConverter}}" />
+
+        <Label Text="{Binding CurrentQuestion.Text}"
+               IsVisible="{Binding CurrentQuestion, Converter={StaticResource NotNullToBoolConverter}}" />
+
+        <!-- Les boutons de réponse sont créés dynamiquement basés sur la question actuelle -->
+        <StackLayout IsVisible="{Binding CurrentQuestion, Converter={StaticResource NotNullToBoolConverter}}">
+            <Button Text="{Binding CurrentQuestion.Choices[0]}"
+                    Command="{Binding CheckAnswerCommand}"
+                    CommandParameter="{Binding CurrentQuestion.Choices[0]}" />
+            <Button Text="{Binding CurrentQuestion.Choices[1]}"
+                    Command="{Binding CheckAnswerCommand}"
+                    CommandParameter="{Binding CurrentQuestion.Choices[1]}" />
+            <Button Text="{Binding CurrentQuestion.Choices[2]}"
+                    Command="{Binding CheckAnswerCommand}"
+                    CommandParameter="{Binding CurrentQuestion.Choices[2]}" />
+            <Button Text="{Binding CurrentQuestion.Choices[3]}"
+                    Command="{Binding CheckAnswerCommand}"
+                    CommandParameter="{Binding CurrentQuestion.Choices[3]}" />
+        </StackLayout>
+    </StackLayout>
 </ContentPage>

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Quiz.Data;
+using Quiz.ViewModels;
+using Quiz.Views;
 
 namespace Quiz
 {
@@ -21,6 +23,9 @@ namespace Quiz
             // Enregistrez votre service de base de données
             .Services.AddSingleton<IDatabaseService, SQLiteDatabaseService>(serviceProvider =>
                 new SQLiteDatabaseService(databasePath));
+            builder.Services.AddTransient<QuizViewModel>();
+            builder.Services.AddSingleton<MainPage>();
+            builder.Services.AddTransient<QuizPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();
