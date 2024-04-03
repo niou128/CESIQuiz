@@ -13,5 +13,6 @@ namespace Quiz.Data
         Task<List<Question>> GetQuestionsAsync();
         Task AddQuestionAsync(Question question);
         Task<List<string>> GetCategoriesAsync();
+        Task InitializeDataAsync();
     }
 }

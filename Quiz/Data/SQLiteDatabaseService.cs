@@ -3,6 +3,7 @@ using Quiz.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -36,6 +37,24 @@ namespace Quiz.Data
                 await command.ExecuteNonQueryAsync();
             }
         }
+
+        public async Task InitializeDataAsync()
+        {
+            var assembly = IntrospectionExtensions.GetTypeInfo(typeof(App)).Assembly;
+            Stream stream = assembly.GetManifestResourceStream("Quiz.sql.InitializeDatabase.sql");
+
+            using var reader = new StreamReader(stream);
+            var sql = await reader.ReadToEndAsync();
+
+            using (var connection = new SqliteConnection($"Data Source={_dbPath}"))
+            {
+                await connection.OpenAsync();
+                var command = connection.CreateCommand();
+                command.CommandText = sql; // La variable 'sql' contient le texte de votre script SQL
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+
 
         public async Task<List<string>> GetCategoriesAsync()
         {

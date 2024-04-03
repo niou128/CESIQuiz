@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CommunityToolkit.Maui;
+using Microsoft.Extensions.Logging;
 using Quiz.Data;
 using Quiz.ViewModels;
 using Quiz.Views;
@@ -12,13 +13,13 @@ namespace Quiz
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
             var databasePath = Path.Combine(FileSystem.AppDataDirectory, "questions.db");
-            //var databasePath = @"F:\source\Quiz\Quiz\questions.db";
             builder
             .UseMauiApp<App>()
             // Enregistrez votre service de base de données
