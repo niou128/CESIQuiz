@@ -25,6 +25,9 @@ namespace Quiz.ViewModels
         private int _questionIndex;
         private int _score;
 
+        [ObservableProperty]
+        private bool quizStarted;
+
         public QuizViewModel(IDatabaseService databaseService)
         {
             _databaseService = databaseService;
@@ -35,6 +38,7 @@ namespace Quiz.ViewModels
         {
             try
             {
+                QuizStarted = true;
                 Questions.Clear();
                 var allQuestions = await _databaseService.GetQuestionsAsync();
                 var randomQuestions = allQuestions.OrderBy(x => Guid.NewGuid()).Take(10).ToList();
@@ -92,6 +96,7 @@ namespace Quiz.ViewModels
             {
                 // Quiz terminé
                 CurrentQuestion = null;
+                QuizStarted = false;
                 await Application.Current.MainPage.DisplayAlert("Quiz", "Le quiz est terminé. Votre score : " + _score, "OK");
             }
         }
