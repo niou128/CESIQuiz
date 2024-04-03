@@ -18,6 +18,7 @@ namespace Quiz
         protected override async void OnStart()
         {
             await _databaseService.InitializeDatabaseAsync();
+            await _databaseService.InitializeDataAsync();
         }
     }
 }

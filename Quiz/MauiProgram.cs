@@ -18,7 +18,6 @@ namespace Quiz
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
             var databasePath = Path.Combine(FileSystem.AppDataDirectory, "questions.db");
-            //var databasePath = @"F:\source\Quiz\Quiz\questions.db";
             builder
             .UseMauiApp<App>()
             // Enregistrez votre service de base de données
