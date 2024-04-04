@@ -11,7 +11,6 @@
     <ContentPage.Resources>
         <ResourceDictionary>
             <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
-            <!-- Vos autres ressources -->
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -48,6 +47,7 @@
                     HorizontalOptions="FillAndExpand"
                     VerticalOptions="FillAndExpand"
                     Margin="10"
+                    Opacity="{Binding OpacityButton1}"
                     BackgroundColor="#FF3B30"/>
 
             <!-- Bouton en haut à droite -->
@@ -59,6 +59,7 @@
                     HorizontalOptions="FillAndExpand"
                     VerticalOptions="FillAndExpand"
                     Margin="10"
+                    Opacity="{Binding OpacityButton2}"
                     BackgroundColor="#007AFF"/>
 
             <!-- Bouton en bas à gauche -->
@@ -70,6 +71,7 @@
                     HorizontalOptions="FillAndExpand"
                     VerticalOptions="FillAndExpand"
                     Margin="10"
+                    Opacity="{Binding OpacityButton3}"
                     BackgroundColor="#4CD964"/>
 
             <!-- Bouton en bas à droite -->
@@ -81,8 +83,13 @@
                     HorizontalOptions="FillAndExpand"
                     VerticalOptions="FillAndExpand"
                     Margin="10"
+                    Opacity="{Binding OpacityButton4}"
                     BackgroundColor="#FFCC00"/>
 
         </Grid>
+
+        <Button Text="Suivant"
+                Command="{Binding ShowNextQuestionCommand}"
+                IsVisible="{Binding AnswerSelected}" />
     </StackLayout>
 </ContentPage>
