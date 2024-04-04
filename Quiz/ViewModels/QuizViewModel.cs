@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Quiz.Data;
-using Quiz.Dialogs;
 using Quiz.Models;
 using System;
 using System.Collections.Generic;
@@ -29,6 +28,21 @@ namespace Quiz.ViewModels
 
         [ObservableProperty]
         private bool quizStarted;
+
+        [ObservableProperty]
+        private bool _answerSelected;
+
+        [ObservableProperty]
+        private double opacityButton1 = 1.0;
+
+        [ObservableProperty]
+        private double opacityButton2 = 1.0;
+
+        [ObservableProperty]
+        private double opacityButton3 = 1.0;
+
+        [ObservableProperty]
+        private double opacityButton4 = 1.0;
 
         public QuizViewModel(IDatabaseService databaseService)
         {
@@ -64,7 +78,7 @@ namespace Quiz.ViewModels
         }
 
         [RelayCommand]
-        private async Task CheckAnswerAsync(string selectedChoice)
+        private void CheckAnswer(string selectedChoice)
         {
             if (CurrentQuestion is null)
             {
@@ -76,40 +90,58 @@ namespace Quiz.ViewModels
             if (selectedChoice == correctAnswer)
             {
                 _score++;
-                await Application.Current.MainPage.DisplayAlert("Résultat", "Bonne réponse!", "OK");
-                //await ShowResultAsync(true);
+                //await Application.Current.MainPage.DisplayAlert("Résultat", "Bonne réponse!", "OK");
             }
             else
             {
-                await Application.Current.MainPage.DisplayAlert("Résultat", "Mauvaise réponse!", "OK");
-                //await ShowResultAsync(false);
+                //await Application.Current.MainPage.DisplayAlert("Résultat", "Mauvaise réponse!", "OK");
             }
 
-            await ShowNextQuestionAsync();
+            RevealAnswers(CurrentQuestion.CorrectAnswerIndex);
+
+            //await ShowNextQuestionAsync();
+            AnswerSelected = true;
         }
 
+        private void RevealAnswers(int selectedIndex)
+        {
+            // Réinitialiser tous les boutons à pleine opacité
+            OpacityButton1 = OpacityButton2 = OpacityButton3 = OpacityButton4 = 0.5;
+
+            // Réglez la bonne réponse à pleine opacité
+            switch (CurrentQuestion.CorrectAnswerIndex)
+            {
+                case 0: OpacityButton1 = 1.0; break;
+                case 1: OpacityButton2 = 1.0; break;
+                case 2: OpacityButton3 = 1.0; break;
+                case 3: OpacityButton4 = 1.0; break;
+            }
+        }
+
+        [RelayCommand]
         private async Task ShowNextQuestionAsync()
         {
             if (_questionIndex < Questions.Count - 1)
             {
                 _questionIndex++;
                 CurrentQuestion = Questions[_questionIndex];
+                ResetAnswerState();
             }
             else
             {
                 // Quiz terminé
                 CurrentQuestion = null;
                 QuizStarted = false;
+                AnswerSelected = false;
                 await Application.Current.MainPage.DisplayAlert("Quiz", "Le quiz est terminé. Votre score : " + _score, "OK");
             }
         }
 
-        public async Task ShowResultAsync(bool isCorrect)
+        private void ResetAnswerState()
         {
-            var message = isCorrect ? "Bonne réponse!" : "Mauvaise réponse!";
-            var resultPopup = new ResultPopup(message);
-
-            await Application.Current.MainPage.ShowPopupAsync(resultPopup);
+            AnswerSelected = false;
+            OpacityButton1 = OpacityButton2 = OpacityButton3 = OpacityButton4 = 1;
+            //OnPropertyChanged(nameof(AnswerSelected));
         }
     }
 }
