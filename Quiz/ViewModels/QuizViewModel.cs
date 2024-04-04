@@ -1,6 +1,8 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Quiz.Data;
+using Quiz.Dialogs;
 using Quiz.Models;
 using System;
 using System.Collections.Generic;
@@ -57,7 +59,6 @@ namespace Quiz.ViewModels
             }
             catch (Exception ex)
             {
-                // TODO: Handle exceptions as appropriate for your app.
                 Console.WriteLine(ex);
             }
         }
@@ -65,7 +66,7 @@ namespace Quiz.ViewModels
         [RelayCommand]
         private async Task CheckAnswerAsync(string selectedChoice)
         {
-            if (currentQuestion is null)
+            if (CurrentQuestion is null)
             {
                 // Question is null, don't proceed.
                 return;
@@ -76,10 +77,12 @@ namespace Quiz.ViewModels
             {
                 _score++;
                 await Application.Current.MainPage.DisplayAlert("Résultat", "Bonne réponse!", "OK");
+                //await ShowResultAsync(true);
             }
             else
             {
                 await Application.Current.MainPage.DisplayAlert("Résultat", "Mauvaise réponse!", "OK");
+                //await ShowResultAsync(false);
             }
 
             await ShowNextQuestionAsync();
@@ -99,6 +102,14 @@ namespace Quiz.ViewModels
                 QuizStarted = false;
                 await Application.Current.MainPage.DisplayAlert("Quiz", "Le quiz est terminé. Votre score : " + _score, "OK");
             }
+        }
+
+        public async Task ShowResultAsync(bool isCorrect)
+        {
+            var message = isCorrect ? "Bonne réponse!" : "Mauvaise réponse!";
+            var resultPopup = new ResultPopup(message);
+
+            await Application.Current.MainPage.ShowPopupAsync(resultPopup);
         }
     }
 }
