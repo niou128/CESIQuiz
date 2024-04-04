@@ -121,18 +121,18 @@ namespace Quiz.ViewModels
         [RelayCommand]
         private async Task ShowNextQuestionAsync()
         {
+            ResetAnswerState();
             if (_questionIndex < Questions.Count - 1)
             {
                 _questionIndex++;
                 CurrentQuestion = Questions[_questionIndex];
-                ResetAnswerState();
+                
             }
             else
             {
                 // Quiz terminé
                 CurrentQuestion = null;
                 QuizStarted = false;
-                AnswerSelected = false;
                 await Application.Current.MainPage.DisplayAlert("Quiz", "Le quiz est terminé. Votre score : " + _score, "OK");
             }
         }
