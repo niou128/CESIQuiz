@@ -106,7 +106,7 @@ namespace Quiz.ViewModels
         private void RevealAnswers(int selectedIndex)
         {
             // Réinitialiser tous les boutons à pleine opacité
-            OpacityButton1 = OpacityButton2 = OpacityButton3 = OpacityButton4 = 0.5;
+            OpacityButton1 = OpacityButton2 = OpacityButton3 = OpacityButton4 = 0.4;
 
             // Réglez la bonne réponse à pleine opacité
             switch (CurrentQuestion.CorrectAnswerIndex)

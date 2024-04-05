@@ -60,7 +60,7 @@
                     VerticalOptions="FillAndExpand"
                     Margin="10"
                     Opacity="{Binding OpacityButton2}"
-                    BackgroundColor="#007AFF"/>
+                    BackgroundColor="#FFCC00"/>
 
             <!-- Bouton en bas à gauche -->
             <Button Text="{Binding CurrentQuestion.Choices[2]}"
@@ -72,7 +72,7 @@
                     VerticalOptions="FillAndExpand"
                     Margin="10"
                     Opacity="{Binding OpacityButton3}"
-                    BackgroundColor="#4CD964"/>
+                    BackgroundColor="#007AFF"/>
 
             <!-- Bouton en bas à droite -->
             <Button Text="{Binding CurrentQuestion.Choices[3]}"
@@ -84,7 +84,7 @@
                     VerticalOptions="FillAndExpand"
                     Margin="10"
                     Opacity="{Binding OpacityButton4}"
-                    BackgroundColor="#FFCC00"/>
+                    BackgroundColor="#4CD964"/>
 
         </Grid>
 
