@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<Shell
-    x:Class="Quiz.AppShell"
-    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:Quiz"
-    Shell.FlyoutBehavior="Disabled"
-    Title="Quiz">
+<Shell x:Class="Quiz.AppShell"
+       xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:local="clr-namespace:Quiz"
+       xmlns:views="clr-namespace:Quiz.Views"
+       Shell.FlyoutBehavior="Disabled"
+       Title="Quiz">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <Tab Title="Home"
+         Icon="icon_home.png">
+        <ShellContent Title="Home"
+                      ContentTemplate="{DataTemplate local:MainPage}"
+                      Route="MainPage" />
+    </Tab>
+    <Tab Title="Quiz"
+         Icon="icon_quiz.png">
+        <ShellContent ContentTemplate="{DataTemplate views:QuizPage}" />
+    </Tab>
 
 </Shell>
