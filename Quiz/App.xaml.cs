@@ -1,4 +1,5 @@
 ﻿using Quiz.Data;
+using System.Diagnostics;
 
 namespace Quiz
 {
@@ -11,14 +12,21 @@ namespace Quiz
         {
             ServiceProvider = serviceProvider;
             InitializeComponent();
-            _databaseService = serviceProvider.GetService<IDatabaseService>();
+            _databaseService = serviceProvider.GetRequiredService<IDatabaseService>();
             MainPage = new AppShell();
         }
 
         protected override async void OnStart()
         {
-            await _databaseService.InitializeDatabaseAsync();
-            await _databaseService.InitializeDataAsync();
+            try
+            {
+                await _databaseService.InitializeDatabaseAsync();
+                await _databaseService.InitializeDataAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Startup failure: {ex}");
+            }
         }
     }
 }

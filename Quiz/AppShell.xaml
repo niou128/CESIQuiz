@@ -7,14 +7,12 @@
        Shell.FlyoutBehavior="Disabled"
        Title="Quiz">
 
-    <Tab Title="Home"
-         Icon="icon_home.png">
+    <Tab Title="Home">
         <ShellContent Title="Home"
                       ContentTemplate="{DataTemplate local:MainPage}"
                       Route="MainPage" />
     </Tab>
-    <Tab Title="Quiz"
-         Icon="icon_quiz.png">
+    <Tab Title="Quiz">
         <ShellContent ContentTemplate="{DataTemplate views:QuizPage}" />
     </Tab>
 

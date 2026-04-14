@@ -5,7 +5,6 @@
              xmlns:converters="clr-namespace:Quiz.Converters"
              x:Class="Quiz.Views.QuizPage"
              Title="Quiz"
-             IconImageSource="quiz.png"
              x:DataType="vm:QuizViewModel">
 
     <ContentPage.Resources>

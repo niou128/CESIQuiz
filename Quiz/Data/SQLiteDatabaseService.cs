@@ -41,7 +41,11 @@ namespace Quiz.Data
         public async Task InitializeDataAsync()
         {
             var assembly = IntrospectionExtensions.GetTypeInfo(typeof(App)).Assembly;
-            Stream stream = assembly.GetManifestResourceStream("Quiz.sql.InitializeDatabase.sql");
+            using Stream? stream = assembly.GetManifestResourceStream("Quiz.sql.InitializeDatabase.sql");
+            if (stream is null)
+            {
+                throw new FileNotFoundException("Embedded SQL resource not found.", "Quiz.sql.InitializeDatabase.sql");
+            }
 
             using var reader = new StreamReader(stream);
             var sql = await reader.ReadToEndAsync();
