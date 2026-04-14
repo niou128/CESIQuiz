@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Quiz/Quiz.csproj">
+    <Deploy />
+  </Project>
+</Solution>
