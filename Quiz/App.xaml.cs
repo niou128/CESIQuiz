@@ -1,15 +1,16 @@
 ﻿using System.Diagnostics;
-using Microsoft.Extensions.DependencyInjection;
-using Quiz.Data;
+using Microsoft.Maui;
+using Microsoft.Maui.Controls;
+using Quiz.Services;
 using Quiz.Views;
 
 namespace Quiz;
 
-public partial class App : Application
+public partial class App : Microsoft.Maui.Controls.Application
 {
-    private Page _startupPage;
+    private Microsoft.Maui.Controls.Page _startupPage;
 
-    public App(IDatabaseService databaseService, LoginPage loginPage)
+    public App(IAppInitializer appInitializer, LoginPage loginPage)
     {
         InitializeComponent();
 
@@ -17,7 +18,7 @@ public partial class App : Application
 
         try
         {
-            databaseService.InitializeAsync().GetAwaiter().GetResult();
+            appInitializer.InitializeAsync().GetAwaiter().GetResult();
         }
         catch (Exception ex)
         {
@@ -31,7 +32,7 @@ public partial class App : Application
         return new Window(new NavigationPage(_startupPage));
     }
 
-    private static Page BuildErrorPage(Exception exception)
+    private static Microsoft.Maui.Controls.Page BuildErrorPage(Exception exception)
     {
         return new ContentPage
         {

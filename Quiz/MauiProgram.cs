@@ -1,6 +1,11 @@
 ﻿using CommunityToolkit.Maui;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Quiz.Data;
+using Microsoft.Maui.Hosting;
+using Microsoft.Maui.Storage;
+using Quiz.Application.Repositories;
+using Quiz.Infrastructure.Persistence;
+using Quiz.Infrastructure.Repositories;
 using Quiz.Services;
 using Quiz.ViewModels;
 using Quiz.Views;
@@ -22,13 +27,18 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        var databasePath = Path.Combine(FileSystem.AppDataDirectory, "quiz.db");
+        var databasePath = Path.Combine(FileSystem.Current.AppDataDirectory, "quiz.db");
 
         builder.Services.AddSingleton(new HttpClient
         {
             Timeout = TimeSpan.FromSeconds(15)
         });
-        builder.Services.AddSingleton<IDatabaseService>(_ => new SQLiteDatabaseService(databasePath));
+        builder.Services.AddDbContextFactory<QuizDbContext>(options =>
+            options.UseSqlite($"Data Source={databasePath}"));
+        builder.Services.AddSingleton<IQuestionRepository, QuestionRepository>();
+        builder.Services.AddSingleton<IUserRepository, UserRepository>();
+        builder.Services.AddSingleton<IScoreRepository, ScoreRepository>();
+        builder.Services.AddSingleton<IAppInitializer, AppInitializer>();
         builder.Services.AddSingleton<ISessionService, SessionService>();
         builder.Services.AddSingleton<IAuthService, AuthService>();
         builder.Services.AddSingleton<IRemoteQuestionService, OpenTriviaDbService>();
@@ -42,6 +52,7 @@ public static class MauiProgram
         builder.Services.AddTransient<AdminViewModel>();
 
         builder.Services.AddTransient<LoginPage>();
+        builder.Services.AddTransient<AppShell>();
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<QuizPage>();
         builder.Services.AddTransient<ScoresPage>();

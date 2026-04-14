@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Quiz.Services;
 
@@ -9,26 +9,26 @@ public partial class LoginViewModel : ObservableObject
     private readonly IAuthService _authService;
     private readonly IAppNavigator _navigator;
 
-    [ObservableProperty]
-    private string username = string.Empty;
-
-    [ObservableProperty]
-    private string password = string.Empty;
-
-    [ObservableProperty]
-    private bool isBusy;
-
-    [ObservableProperty]
-    private string statusMessage = string.Empty;
-
-    [ObservableProperty]
-    private bool hasStatusMessage;
-
     public LoginViewModel(IAuthService authService, IAppNavigator navigator)
     {
         _authService = authService;
         _navigator = navigator;
     }
+
+    [ObservableProperty]
+    public partial string Username { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial string Password { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial bool IsBusy { get; set; }
+
+    [ObservableProperty]
+    public partial string StatusMessage { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial bool HasStatusMessage { get; set; }
 
     [RelayCommand]
     private async Task LoginAsync()

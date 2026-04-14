@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Quiz.Models;
 using Quiz.Services;
@@ -19,22 +19,22 @@ public partial class DashboardViewModel : ObservableObject
     public IReadOnlyList<string> AvailableModes { get; } = new[] { "Local", "Distant" };
 
     [ObservableProperty]
-    private string selectedMode = "Local";
+    public partial string SelectedMode { get; set; } = "Local";
 
     [ObservableProperty]
-    private double questionCount = 10;
+    public partial double QuestionCount { get; set; } = 10;
 
     [ObservableProperty]
-    private string welcomeMessage = string.Empty;
+    public partial string WelcomeMessage { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool canAccessAdmin;
+    public partial bool CanAccessAdmin { get; set; }
 
     [ObservableProperty]
-    private string statusMessage = string.Empty;
+    public partial string StatusMessage { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool hasStatusMessage;
+    public partial bool HasStatusMessage { get; set; }
 
     public string QuestionCountLabel => $"Nombre de questions : {(int)QuestionCount}";
 

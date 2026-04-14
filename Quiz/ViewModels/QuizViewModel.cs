@@ -1,17 +1,18 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Graphics;
-using System.Collections.ObjectModel;
-using Quiz.Data;
+using Quiz.Application.Repositories;
 using Quiz.Models;
 using Quiz.Services;
+using System.Collections.ObjectModel;
 
 namespace Quiz.ViewModels;
 
 public partial class QuizViewModel : ObservableObject
 {
     private static readonly string[] DefaultAnswerColors = ["#E53935", "#1E88E5", "#FDD835", "#43A047"];
-    private readonly IDatabaseService _databaseService;
+    private readonly IQuestionRepository _questionRepository;
+    private readonly IScoreRepository _scoreRepository;
     private readonly IRemoteQuestionService _remoteQuestionService;
     private readonly ISessionService _sessionService;
     private readonly IAppNavigator _navigator;
@@ -19,41 +20,47 @@ public partial class QuizViewModel : ObservableObject
     private int _currentIndex;
     private int _correctAnswers;
 
-    [ObservableProperty]
-    private Question? currentQuestion;
-
-    [ObservableProperty]
-    private ObservableCollection<AnswerOption> answerOptions = new();
-
-    [ObservableProperty]
-    private string progressText = string.Empty;
-
-    [ObservableProperty]
-    private string statusMessage = string.Empty;
-
-    [ObservableProperty]
-    private bool hasStatusMessage;
-
-    [ObservableProperty]
-    private bool isBusy;
-
-    [ObservableProperty]
-    private bool canMoveNext;
-
-    [ObservableProperty]
-    private bool hasActiveQuestion;
-
     public QuizViewModel(
-        IDatabaseService databaseService,
+        IQuestionRepository questionRepository,
+        IScoreRepository scoreRepository,
         IRemoteQuestionService remoteQuestionService,
         ISessionService sessionService,
         IAppNavigator navigator)
     {
-        _databaseService = databaseService;
+        _questionRepository = questionRepository;
+        _scoreRepository = scoreRepository;
         _remoteQuestionService = remoteQuestionService;
         _sessionService = sessionService;
         _navigator = navigator;
     }
+
+    [ObservableProperty]
+    public partial Question? CurrentQuestion { get; set; }
+
+    [ObservableProperty]
+    public partial ObservableCollection<AnswerOption> AnswerOptions { get; set; } = new();
+
+    [ObservableProperty]
+    public partial string ProgressText { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial string StatusMessage { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial bool HasStatusMessage { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsBusy { get; set; }
+
+    [ObservableProperty]
+    public partial bool CanMoveNext { get; set; }
+
+    [ObservableProperty]
+    public partial bool HasActiveQuestion { get; set; }
+
+    public QuizSourceMode CurrentMode { get; private set; } = QuizSourceMode.Local;
+
+    public int QuestionCount { get; private set; }
 
     public async Task LoadQuizAsync(QuizSourceMode mode, int questionCount)
     {
@@ -70,7 +77,7 @@ public partial class QuizViewModel : ObservableObject
         try
         {
             IReadOnlyList<Question> fetchedQuestions = mode == QuizSourceMode.Local
-                ? await _databaseService.GetRandomQuestionsAsync(questionCount)
+                ? await _questionRepository.GetRandomAsync(questionCount)
                 : await _remoteQuestionService.GetQuestionsAsync(questionCount);
 
             if (fetchedQuestions.Count < 5)
@@ -93,10 +100,6 @@ public partial class QuizViewModel : ObservableObject
             IsBusy = false;
         }
     }
-
-    public QuizSourceMode CurrentMode { get; private set; } = QuizSourceMode.Local;
-
-    public int QuestionCount { get; private set; }
 
     [RelayCommand]
     private void SelectAnswer(AnswerOption option)
@@ -153,7 +156,7 @@ public partial class QuizViewModel : ObservableObject
             return;
         }
 
-        await _databaseService.SaveScoreAsync(new QuizScore
+        await _scoreRepository.AddAsync(new QuizScore
         {
             UserId = currentUser.Id,
             QuizMode = CurrentMode,
@@ -162,7 +165,7 @@ public partial class QuizViewModel : ObservableObject
             CompletedAtUtc = DateTime.UtcNow
         });
 
-        await Application.Current!.Windows[0].Page!.DisplayAlert(
+        await Microsoft.Maui.Controls.Application.Current!.Windows[0].Page!.DisplayAlertAsync(
             "Quiz terminé",
             $"Score : {_correctAnswers}/{QuestionCount}",
             "OK");

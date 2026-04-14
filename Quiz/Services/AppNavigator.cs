@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Maui.Controls;
 using Quiz.Models;
 using Quiz.Views;
 
@@ -20,42 +21,43 @@ public sealed class AppNavigator : IAppNavigator
 
     public Task ShowHomeAsync()
     {
-        return SetRootAsync<global::Quiz.MainPage>();
+        var shell = _serviceProvider.GetRequiredService<AppShell>();
+        Microsoft.Maui.Controls.Application.Current!.Windows[0].Page = shell;
+        return Task.CompletedTask;
     }
 
     public async Task NavigateToQuizAsync(QuizSourceMode mode, int questionCount)
     {
         var page = _serviceProvider.GetRequiredService<QuizPage>();
         await page.InitializeAsync(mode, questionCount);
-        await CurrentNavigation.PushAsync(page);
+        await Shell.Current.Navigation.PushAsync(page);
     }
 
     public async Task NavigateToScoresAsync()
     {
-        var page = _serviceProvider.GetRequiredService<ScoresPage>();
-        await CurrentNavigation.PushAsync(page);
+        await Shell.Current.GoToAsync($"//{AppShell.ScoresRoute}");
     }
 
     public async Task NavigateToAdminAsync()
     {
-        var page = _serviceProvider.GetRequiredService<AdminPage>();
-        await CurrentNavigation.PushAsync(page);
+        await Shell.Current.GoToAsync($"//{AppShell.AdminRoute}");
     }
 
     public Task GoBackAsync()
     {
-        return CurrentNavigation.PopAsync();
+        if (Shell.Current?.Navigation?.NavigationStack?.Count > 1)
+        {
+            return Shell.Current.Navigation.PopAsync();
+        }
+
+        return Task.CompletedTask;
     }
 
     private Task SetRootAsync<TPage>()
         where TPage : Page
     {
         var page = _serviceProvider.GetRequiredService<TPage>();
-        Application.Current!.Windows[0].Page = new NavigationPage(page);
+        Microsoft.Maui.Controls.Application.Current!.Windows[0].Page = new NavigationPage(page);
         return Task.CompletedTask;
     }
-
-    private INavigation CurrentNavigation =>
-        Application.Current?.Windows[0].Page?.Navigation
-        ?? throw new InvalidOperationException("La navigation n'est pas disponible.");
 }

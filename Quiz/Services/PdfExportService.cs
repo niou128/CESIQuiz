@@ -1,4 +1,4 @@
-﻿using Microsoft.Maui.Storage;
+using Microsoft.Maui.Storage;
 using PdfSharp;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
@@ -31,36 +31,37 @@ public sealed class PdfExportService : IPdfExportService
         PdfPage page = document.AddPage();
         page.Size = PageSize.A4;
         var graphics = XGraphics.FromPdfPage(page);
-        double y = 40;
+        var y = 40d;
+        var contentWidth = page.Width.Point - 80d;
 
-        graphics.DrawString($"Historique des scores - {user.Username}", titleFont, XBrushes.Black, new XRect(40, y, page.Width - 80, 24), XStringFormats.TopLeft);
-        y += 30;
-        graphics.DrawString($"Export généré le {DateTime.Now:dd/MM/yyyy HH:mm}", bodyFont, XBrushes.Black, new XRect(40, y, page.Width - 80, 18), XStringFormats.TopLeft);
-        y += 30;
+        graphics.DrawString($"Historique des scores - {user.Username}", titleFont, XBrushes.Black, new XRect(40d, y, contentWidth, 24d), XStringFormats.TopLeft);
+        y += 30d;
+        graphics.DrawString($"Export généré le {DateTime.Now:dd/MM/yyyy HH:mm}", bodyFont, XBrushes.Black, new XRect(40d, y, contentWidth, 18d), XStringFormats.TopLeft);
+        y += 30d;
 
-        graphics.DrawString("Date", headerFont, XBrushes.Black, new XRect(40, y, 130, 18), XStringFormats.TopLeft);
-        graphics.DrawString("Mode", headerFont, XBrushes.Black, new XRect(180, y, 90, 18), XStringFormats.TopLeft);
-        graphics.DrawString("Questions", headerFont, XBrushes.Black, new XRect(280, y, 90, 18), XStringFormats.TopLeft);
-        graphics.DrawString("Score", headerFont, XBrushes.Black, new XRect(380, y, 90, 18), XStringFormats.TopLeft);
-        graphics.DrawString("%", headerFont, XBrushes.Black, new XRect(470, y, 60, 18), XStringFormats.TopLeft);
-        y += 20;
+        graphics.DrawString("Date", headerFont, XBrushes.Black, new XRect(40d, y, 130d, 18d), XStringFormats.TopLeft);
+        graphics.DrawString("Mode", headerFont, XBrushes.Black, new XRect(180d, y, 90d, 18d), XStringFormats.TopLeft);
+        graphics.DrawString("Questions", headerFont, XBrushes.Black, new XRect(280d, y, 90d, 18d), XStringFormats.TopLeft);
+        graphics.DrawString("Score", headerFont, XBrushes.Black, new XRect(380d, y, 90d, 18d), XStringFormats.TopLeft);
+        graphics.DrawString("%", headerFont, XBrushes.Black, new XRect(470d, y, 60d, 18d), XStringFormats.TopLeft);
+        y += 20d;
 
         foreach (var score in scores)
         {
-            if (y > page.Height - 40)
+            if (y > page.Height.Point - 40d)
             {
                 page = document.AddPage();
                 page.Size = PageSize.A4;
                 graphics = XGraphics.FromPdfPage(page);
-                y = 40;
+                y = 40d;
             }
 
-            graphics.DrawString(score.CompletedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm"), bodyFont, XBrushes.Black, new XRect(40, y, 130, 18), XStringFormats.TopLeft);
-            graphics.DrawString(score.QuizMode == QuizSourceMode.Local ? "Local" : "Distant", bodyFont, XBrushes.Black, new XRect(180, y, 90, 18), XStringFormats.TopLeft);
-            graphics.DrawString(score.QuestionCount.ToString(), bodyFont, XBrushes.Black, new XRect(280, y, 90, 18), XStringFormats.TopLeft);
-            graphics.DrawString($"{score.CorrectAnswers}/{score.QuestionCount}", bodyFont, XBrushes.Black, new XRect(380, y, 90, 18), XStringFormats.TopLeft);
-            graphics.DrawString(score.Percentage.ToString(), bodyFont, XBrushes.Black, new XRect(470, y, 60, 18), XStringFormats.TopLeft);
-            y += 18;
+            graphics.DrawString(score.CompletedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm"), bodyFont, XBrushes.Black, new XRect(40d, y, 130d, 18d), XStringFormats.TopLeft);
+            graphics.DrawString(score.QuizMode == QuizSourceMode.Local ? "Local" : "Distant", bodyFont, XBrushes.Black, new XRect(180d, y, 90d, 18d), XStringFormats.TopLeft);
+            graphics.DrawString(score.QuestionCount.ToString(), bodyFont, XBrushes.Black, new XRect(280d, y, 90d, 18d), XStringFormats.TopLeft);
+            graphics.DrawString($"{score.CorrectAnswers}/{score.QuestionCount}", bodyFont, XBrushes.Black, new XRect(380d, y, 90d, 18d), XStringFormats.TopLeft);
+            graphics.DrawString(score.Percentage.ToString(), bodyFont, XBrushes.Black, new XRect(470d, y, 60d, 18d), XStringFormats.TopLeft);
+            y += 18d;
         }
 
         document.Save(filePath);

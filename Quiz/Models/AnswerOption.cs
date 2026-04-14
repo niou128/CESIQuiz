@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Maui.Graphics;
 
 namespace Quiz.Models;
@@ -6,14 +6,14 @@ namespace Quiz.Models;
 public partial class AnswerOption : ObservableObject
 {
     [ObservableProperty]
-    private string text = string.Empty;
+    public partial string Text { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool isCorrect;
+    public partial bool IsCorrect { get; set; }
 
     [ObservableProperty]
-    private bool isEnabled = true;
+    public partial bool IsEnabled { get; set; } = true;
 
     [ObservableProperty]
-    private Color backgroundColor = Color.FromArgb("#1565C0");
+    public partial Color BackgroundColor { get; set; } = Color.FromArgb("#1565C0");
 }

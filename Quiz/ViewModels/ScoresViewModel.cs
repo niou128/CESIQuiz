@@ -1,45 +1,45 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Collections.ObjectModel;
-using Quiz.Data;
+using Quiz.Application.Repositories;
 using Quiz.Models;
 using Quiz.Services;
+using System.Collections.ObjectModel;
 
 namespace Quiz.ViewModels;
 
 public partial class ScoresViewModel : ObservableObject
 {
-    private readonly IDatabaseService _databaseService;
+    private readonly IScoreRepository _scoreRepository;
     private readonly ISessionService _sessionService;
     private readonly IPdfExportService _pdfExportService;
     private readonly IAppNavigator _navigator;
 
     public ScoresViewModel(
-        IDatabaseService databaseService,
+        IScoreRepository scoreRepository,
         ISessionService sessionService,
         IPdfExportService pdfExportService,
         IAppNavigator navigator)
     {
-        _databaseService = databaseService;
+        _scoreRepository = scoreRepository;
         _sessionService = sessionService;
         _pdfExportService = pdfExportService;
         _navigator = navigator;
     }
 
     [ObservableProperty]
-    private ObservableCollection<QuizScore> scores = new();
+    public partial ObservableCollection<QuizScore> Scores { get; set; } = new();
 
     [ObservableProperty]
-    private string summary = string.Empty;
+    public partial string Summary { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool hasScores;
+    public partial bool HasScores { get; set; }
 
     [ObservableProperty]
-    private string statusMessage = string.Empty;
+    public partial string StatusMessage { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool hasStatusMessage;
+    public partial bool HasStatusMessage { get; set; }
 
     public async Task LoadAsync()
     {
@@ -50,7 +50,7 @@ public partial class ScoresViewModel : ObservableObject
             return;
         }
 
-        var items = await _databaseService.GetScoresForUserAsync(currentUser.Id);
+        var items = await _scoreRepository.GetByUserIdAsync(currentUser.Id);
         Scores = new ObservableCollection<QuizScore>(items);
         HasScores = Scores.Count > 0;
 

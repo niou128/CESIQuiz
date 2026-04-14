@@ -1,17 +1,17 @@
-﻿using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Collections.ObjectModel;
 using Microsoft.Maui.Storage;
-using Quiz.Data;
+using Quiz.Application.Repositories;
 using Quiz.Models;
 using Quiz.Services;
+using System.Collections.ObjectModel;
+using System.Text.Json;
 
 namespace Quiz.ViewModels;
 
 public partial class AdminViewModel : ObservableObject
 {
-    private readonly IDatabaseService _databaseService;
+    private readonly IQuestionRepository _questionRepository;
     private readonly ISessionService _sessionService;
     private readonly IAppNavigator _navigator;
     private readonly JsonSerializerOptions _jsonOptions = new()
@@ -20,53 +20,53 @@ public partial class AdminViewModel : ObservableObject
     };
 
     public AdminViewModel(
-        IDatabaseService databaseService,
+        IQuestionRepository questionRepository,
         ISessionService sessionService,
         IAppNavigator navigator)
     {
-        _databaseService = databaseService;
+        _questionRepository = questionRepository;
         _sessionService = sessionService;
         _navigator = navigator;
     }
 
     [ObservableProperty]
-    private ObservableCollection<Question> questions = new();
+    public partial ObservableCollection<Question> Questions { get; set; } = new();
 
     [ObservableProperty]
-    private Question? selectedQuestion;
+    public partial Question? SelectedQuestion { get; set; }
 
     [ObservableProperty]
-    private string category = string.Empty;
+    public partial string Category { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string questionText = string.Empty;
+    public partial string QuestionText { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string choice1 = string.Empty;
+    public partial string Choice1 { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string choice2 = string.Empty;
+    public partial string Choice2 { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string choice3 = string.Empty;
+    public partial string Choice3 { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string choice4 = string.Empty;
+    public partial string Choice4 { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private int correctAnswerIndex;
+    public partial int CorrectAnswerIndex { get; set; }
 
     [ObservableProperty]
-    private bool isAdmin;
+    public partial bool IsAdmin { get; set; }
 
     [ObservableProperty]
-    private bool hasSelectedQuestion;
+    public partial bool HasSelectedQuestion { get; set; }
 
     [ObservableProperty]
-    private string statusMessage = string.Empty;
+    public partial string StatusMessage { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool hasStatusMessage;
+    public partial bool HasStatusMessage { get; set; }
 
     public IReadOnlyList<string> CorrectAnswerLabels { get; } = new[] { "Choix 1", "Choix 2", "Choix 3", "Choix 4" };
 
@@ -143,7 +143,7 @@ public partial class AdminViewModel : ObservableObject
                 CorrectAnswerIndex = CorrectAnswerIndex
             };
 
-            await _databaseService.SaveQuestionAsync(question);
+            await _questionRepository.SaveAsync(question);
             await ReloadQuestionsAsync();
             SelectedQuestion = Questions.FirstOrDefault(item => item.Id == question.Id);
             StatusMessage = "Question enregistrée.";
@@ -164,7 +164,7 @@ public partial class AdminViewModel : ObservableObject
             return;
         }
 
-        await _databaseService.DeleteQuestionAsync(SelectedQuestion.Id);
+        await _questionRepository.DeleteAsync(SelectedQuestion.Id);
         NewQuestion();
         await ReloadQuestionsAsync();
         StatusMessage = "Question supprimée.";
@@ -198,7 +198,7 @@ public partial class AdminViewModel : ObservableObject
                 throw new InvalidOperationException("Impossible de lire le contenu JSON.");
             }
 
-            await _databaseService.ImportQuestionsAsync(importedQuestions);
+            await _questionRepository.ImportAsync(importedQuestions);
             await ReloadQuestionsAsync();
             StatusMessage = $"{importedQuestions.Count} question(s) importée(s).";
             HasStatusMessage = true;
@@ -212,7 +212,7 @@ public partial class AdminViewModel : ObservableObject
 
     private async Task ReloadQuestionsAsync()
     {
-        var items = await _databaseService.GetAllQuestionsAsync();
+        var items = await _questionRepository.GetAllAsync();
         Questions = new ObservableCollection<Question>(items);
     }
 }
