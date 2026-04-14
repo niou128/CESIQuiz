@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:Quiz.Converters"
+             x:Class="Quiz.Views.LoginPage"
+             Title="Connexion">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="16">
+            <Image Source="toohak.png"
+                   HeightRequest="120"
+                   Aspect="AspectFit" />
+
+            <Label Text="Connexion locale"
+                   FontSize="28"
+                   FontAttributes="Bold" />
+
+            <Label Text="Identifiez-vous ou créez un compte pour lier vos scores."
+                   TextColor="{AppThemeBinding Light=#555555, Dark=#CCCCCC}" />
+
+            <Entry Placeholder="Nom d'utilisateur"
+                   Text="{Binding Username}" />
+
+            <Entry Placeholder="Mot de passe"
+                   IsPassword="True"
+                   Text="{Binding Password}" />
+
+            <Button Text="Se connecter"
+                    Command="{Binding LoginCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}" />
+
+            <Button Text="Créer un compte local"
+                    Command="{Binding RegisterCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}" />
+
+            <Border StrokeThickness="1" Padding="12" Stroke="{AppThemeBinding Light=#DDDDDD, Dark=#444444}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Compte administrateur initial"
+                           FontAttributes="Bold" />
+                    <Label Text="Utilisateur : admin" />
+                    <Label Text="Mot de passe : Admin123!" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="{Binding StatusMessage}"
+                   TextColor="Tomato"
+                   IsVisible="{Binding HasStatusMessage}" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

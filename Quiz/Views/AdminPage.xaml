@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:Quiz.Converters"
+             x:Class="Quiz.Views.AdminPage"
+             Title="Administration">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="16">
+            <Label Text="Administration des questions"
+                   FontSize="26"
+                   FontAttributes="Bold" />
+
+            <Label Text="Accès refusé. Connectez-vous avec le compte administrateur."
+                   TextColor="Tomato"
+                   IsVisible="{Binding IsAdmin, Converter={StaticResource InverseBoolConverter}}" />
+
+            <VerticalStackLayout IsVisible="{Binding IsAdmin}" Spacing="14">
+                <HorizontalStackLayout Spacing="10">
+                    <Button Text="Nouvelle question"
+                            Command="{Binding NewQuestionCommand}" />
+                    <Button Text="Importer un JSON"
+                            Command="{Binding ImportJsonCommand}" />
+                </HorizontalStackLayout>
+
+                <Entry Placeholder="Catégorie"
+                       Text="{Binding Category}" />
+
+                <Editor Placeholder="Question"
+                        AutoSize="TextChanges"
+                        Text="{Binding QuestionText}" />
+
+                <Entry Placeholder="Choix 1"
+                       Text="{Binding Choice1}" />
+                <Entry Placeholder="Choix 2"
+                       Text="{Binding Choice2}" />
+                <Entry Placeholder="Choix 3"
+                       Text="{Binding Choice3}" />
+                <Entry Placeholder="Choix 4"
+                       Text="{Binding Choice4}" />
+
+                <Label Text="Bonne réponse" FontAttributes="Bold" />
+                <Picker ItemsSource="{Binding CorrectAnswerLabels}"
+                        SelectedIndex="{Binding CorrectAnswerIndex}" />
+
+                <HorizontalStackLayout Spacing="10">
+                    <Button Text="Enregistrer"
+                            Command="{Binding SaveQuestionCommand}" />
+                    <Button Text="Supprimer"
+                            Command="{Binding DeleteQuestionCommand}"
+                            IsEnabled="{Binding HasSelectedQuestion}" />
+                </HorizontalStackLayout>
+
+                <CollectionView ItemsSource="{Binding Questions}"
+                                SelectedItem="{Binding SelectedQuestion}"
+                                SelectionMode="Single"
+                                HeightRequest="420">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border StrokeThickness="1"
+                                    Padding="12"
+                                    Margin="0,0,0,12"
+                                    Stroke="{AppThemeBinding Light=#DDDDDD, Dark=#444444}">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="{Binding Category}"
+                                           FontAttributes="Bold" />
+                                    <Label Text="{Binding Text}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+            <Label Text="{Binding StatusMessage}"
+                   TextColor="Tomato"
+                   IsVisible="{Binding HasStatusMessage}" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

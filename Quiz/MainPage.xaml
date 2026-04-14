@@ -1,22 +1,58 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Quiz.MainPage">
+             x:Class="Quiz.MainPage"
+             Title="Accueil">
 
     <ScrollView>
-        <VerticalStackLayout
-            Padding="30,0"
-            Spacing="25">
+        <VerticalStackLayout Padding="24" Spacing="18">
             <Image Source="toohak.png"
+                   HeightRequest="140"
                    Aspect="AspectFit"
-                   HorizontalOptions="FillAndExpand"
-                   VerticalOptions="FillAndExpand"
-                   SemanticProperties.Description="logo de toohak" />
+                   SemanticProperties.Description="Logo de l'application" />
 
-            <Label Text="Bienvenue sur Toohak !"
-                Style="{StaticResource Headline}"
-                SemanticProperties.HeadingLevel="Level1" />
+            <Label Text="{Binding WelcomeMessage}"
+                   FontSize="26"
+                   FontAttributes="Bold" />
 
+            <Label Text="Choisissez le mode de questions et le nombre de questions avant de démarrer."
+                   TextColor="{AppThemeBinding Light=#555555, Dark=#CCCCCC}" />
+
+            <Label Text="Mode de fonctionnement" FontAttributes="Bold" />
+            <Picker ItemsSource="{Binding AvailableModes}"
+                    SelectedItem="{Binding SelectedMode}" />
+
+            <Label Text="{Binding QuestionCountLabel}"
+                   FontAttributes="Bold" />
+            <Stepper Minimum="5"
+                     Maximum="20"
+                     Increment="1"
+                     Value="{Binding QuestionCount}" />
+
+            <Button Text="Lancer le quiz"
+                    Command="{Binding StartQuizCommand}" />
+
+            <Button Text="Voir mes scores"
+                    Command="{Binding OpenScoresCommand}" />
+
+            <Button Text="Administration"
+                    Command="{Binding OpenAdminCommand}"
+                    IsVisible="{Binding CanAccessAdmin}" />
+
+            <Button Text="Se déconnecter"
+                    Command="{Binding LogoutCommand}" />
+
+            <Border StrokeThickness="1" Padding="12" Stroke="{AppThemeBinding Light=#DDDDDD, Dark=#444444}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Information"
+                           FontAttributes="Bold" />
+                    <Label Text="Mode local : questions stockées dans SQLite. Mode distant : questions récupérées depuis une API trivia publique."
+                           LineBreakMode="WordWrap" />
+                    <Label Text="{Binding StatusMessage}"
+                           TextColor="Tomato"
+                           IsVisible="{Binding HasStatusMessage}" />
+                </VerticalStackLayout>
+            </Border>
         </VerticalStackLayout>
     </ScrollView>
 

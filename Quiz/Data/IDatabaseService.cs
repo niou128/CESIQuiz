@@ -1,18 +1,17 @@
 ﻿using Quiz.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Quiz.Data
+namespace Quiz.Data;
+
+public interface IDatabaseService
 {
-    public interface IDatabaseService
-    {
-        Task InitializeDatabaseAsync();
-        Task<List<Question>> GetQuestionsAsync();
-        Task AddQuestionAsync(Question question);
-        Task<List<string>> GetCategoriesAsync();
-        Task InitializeDataAsync();
-    }
+    Task InitializeAsync();
+    Task<IReadOnlyList<Question>> GetRandomQuestionsAsync(int count);
+    Task<IReadOnlyList<Question>> GetAllQuestionsAsync();
+    Task<Question> SaveQuestionAsync(Question question);
+    Task DeleteQuestionAsync(int questionId);
+    Task ImportQuestionsAsync(IEnumerable<Question> questions);
+    Task<UserAccount?> GetUserByUsernameAsync(string username);
+    Task<UserAccount> CreateUserAsync(string username, string passwordHash, string passwordSalt, bool isAdmin);
+    Task SaveScoreAsync(QuizScore score);
+    Task<IReadOnlyList<QuizScore>> GetScoresForUserAsync(int userId);
 }

@@ -1,39 +1,56 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 using Quiz.Data;
+using Quiz.Services;
 using Quiz.ViewModels;
 using Quiz.Views;
 
-namespace Quiz
+namespace Quiz;
+
+public static class MauiProgram
 {
-    public static class MauiProgram
+    public static MauiApp CreateMauiApp()
     {
-        public static MauiApp CreateMauiApp()
-        {
-            var builder = MauiApp.CreateBuilder();
-            builder
-                .UseMauiApp<App>()
-                .UseMauiCommunityToolkit()
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                });
-            var databasePath = Path.Combine(FileSystem.AppDataDirectory, "questions.db");
-            builder
+        var builder = MauiApp.CreateBuilder();
+
+        builder
             .UseMauiApp<App>()
-            // Enregistrez votre service de base de données
-            .Services.AddSingleton<IDatabaseService, SQLiteDatabaseService>(serviceProvider =>
-                new SQLiteDatabaseService(databasePath));
-            builder.Services.AddTransient<QuizViewModel>();
-            builder.Services.AddSingleton<MainPage>();
-            builder.Services.AddTransient<QuizPage>();
+            .UseMauiCommunityToolkit()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+            });
+
+        var databasePath = Path.Combine(FileSystem.AppDataDirectory, "quiz.db");
+
+        builder.Services.AddSingleton(new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(15)
+        });
+        builder.Services.AddSingleton<IDatabaseService>(_ => new SQLiteDatabaseService(databasePath));
+        builder.Services.AddSingleton<ISessionService, SessionService>();
+        builder.Services.AddSingleton<IAuthService, AuthService>();
+        builder.Services.AddSingleton<IRemoteQuestionService, OpenTriviaDbService>();
+        builder.Services.AddSingleton<IPdfExportService, PdfExportService>();
+        builder.Services.AddSingleton<IAppNavigator, AppNavigator>();
+
+        builder.Services.AddTransient<LoginViewModel>();
+        builder.Services.AddTransient<DashboardViewModel>();
+        builder.Services.AddTransient<QuizViewModel>();
+        builder.Services.AddTransient<ScoresViewModel>();
+        builder.Services.AddTransient<AdminViewModel>();
+
+        builder.Services.AddTransient<LoginPage>();
+        builder.Services.AddTransient<MainPage>();
+        builder.Services.AddTransient<QuizPage>();
+        builder.Services.AddTransient<ScoresPage>();
+        builder.Services.AddTransient<AdminPage>();
 
 #if DEBUG
-            builder.Logging.AddDebug();
+        builder.Logging.AddDebug();
 #endif
 
-            return builder.Build();
-        }
+        return builder.Build();
     }
 }

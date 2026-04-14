@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Quiz.Views.ScoresPage"
+             Title="Mes scores">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="16">
+            <Label Text="Historique de mes scores"
+                   FontSize="26"
+                   FontAttributes="Bold" />
+
+            <Label Text="{Binding Summary}" />
+
+            <Button Text="Exporter mes scores en PDF"
+                    Command="{Binding ExportPdfCommand}"
+                    IsVisible="{Binding HasScores}" />
+
+            <CollectionView ItemsSource="{Binding Scores}"
+                            HeightRequest="420">
+                <CollectionView.EmptyView>
+                    <Label Text="Aucun score enregistré pour le moment." />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border StrokeThickness="1"
+                                Padding="12"
+                                Margin="0,0,0,12"
+                                Stroke="{AppThemeBinding Light=#DDDDDD, Dark=#444444}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding CompletedAtUtc, StringFormat='Date : {0:dd/MM/yyyy HH:mm}'}"
+                                       FontAttributes="Bold" />
+                                <Label Text="{Binding ModeLabel, StringFormat='Mode : {0}'}" />
+                                <Label Text="{Binding QuestionCount, StringFormat='Questions : {0}'}" />
+                                <Label Text="{Binding CorrectAnswers, StringFormat='Bonnes réponses : {0}'}" />
+                                <Label Text="{Binding Percentage, StringFormat='Pourcentage : {0}%'}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Label Text="{Binding StatusMessage}"
+                   TextColor="Tomato"
+                   IsVisible="{Binding HasStatusMessage}" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
