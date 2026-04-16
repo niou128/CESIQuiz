@@ -1,147 +1,206 @@
-﻿using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Quiz.Data;
+using Microsoft.Maui.Graphics;
+using Quiz.Application.Repositories;
 using Quiz.Models;
-using System;
-using System.Collections.Generic;
+using Quiz.Services;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
 
-namespace Quiz.ViewModels
+namespace Quiz.ViewModels;
+
+public partial class QuizViewModel : ObservableObject
 {
-    public partial class QuizViewModel : ObservableObject
+    private static readonly string[] DefaultAnswerColors = ["#E53935", "#1E88E5", "#FDD835", "#43A047"];
+    private readonly IQuestionRepository _questionRepository;
+    private readonly IScoreRepository _scoreRepository;
+    private readonly IRemoteQuestionService _remoteQuestionService;
+    private readonly ISessionService _sessionService;
+    private readonly IAppNavigator _navigator;
+    private readonly List<Question> _questions = new();
+    private int _currentIndex;
+    private int _correctAnswers;
+
+    public QuizViewModel(
+        IQuestionRepository questionRepository,
+        IScoreRepository scoreRepository,
+        IRemoteQuestionService remoteQuestionService,
+        ISessionService sessionService,
+        IAppNavigator navigator)
     {
-        [ObservableProperty]
-        private ObservableCollection<Question> questions = new();
+        _questionRepository = questionRepository;
+        _scoreRepository = scoreRepository;
+        _remoteQuestionService = remoteQuestionService;
+        _sessionService = sessionService;
+        _navigator = navigator;
+    }
 
-        [ObservableProperty]
-        private Question currentQuestion;
+    [ObservableProperty]
+    public partial Question? CurrentQuestion { get; set; }
 
-        private readonly IDatabaseService _databaseService;
+    [ObservableProperty]
+    public partial ObservableCollection<AnswerOption> AnswerOptions { get; set; } = new();
 
-        private int _questionIndex;
-        private int _score;
+    [ObservableProperty]
+    public partial string ProgressText { get; set; } = string.Empty;
 
-        [ObservableProperty]
-        private bool quizStarted;
+    [ObservableProperty]
+    public partial string StatusMessage { get; set; } = string.Empty;
 
-        [ObservableProperty]
-        private bool _answerSelected;
+    [ObservableProperty]
+    public partial bool HasStatusMessage { get; set; }
 
-        [ObservableProperty]
-        private double opacityButton1 = 1.0;
+    [ObservableProperty]
+    public partial bool IsBusy { get; set; }
 
-        [ObservableProperty]
-        private double opacityButton2 = 1.0;
+    [ObservableProperty]
+    public partial bool CanMoveNext { get; set; }
 
-        [ObservableProperty]
-        private double opacityButton3 = 1.0;
+    [ObservableProperty]
+    public partial bool HasActiveQuestion { get; set; }
 
-        [ObservableProperty]
-        private double opacityButton4 = 1.0;
+    public QuizSourceMode CurrentMode { get; private set; } = QuizSourceMode.Local;
 
-        public QuizViewModel(IDatabaseService databaseService)
+    public int QuestionCount { get; private set; }
+
+    public async Task LoadQuizAsync(QuizSourceMode mode, int questionCount)
+    {
+        if (_sessionService.CurrentUser is null)
         {
-            _databaseService = databaseService;
+            await _navigator.ShowLoginAsync();
+            return;
         }
 
-        [RelayCommand]
-        private async Task StartQuizAsync()
+        questionCount = Math.Clamp(questionCount, 5, 20);
+        ResetState();
+        IsBusy = true;
+
+        try
         {
-            try
-            {
-                QuizStarted = true;
-                Questions.Clear();
-                var allQuestions = await _databaseService.GetQuestionsAsync();
-                var randomQuestions = allQuestions.OrderBy(x => Guid.NewGuid()).Take(10).ToList();
+            IReadOnlyList<Question> fetchedQuestions = mode == QuizSourceMode.Local
+                ? await _questionRepository.GetRandomAsync(questionCount)
+                : await _remoteQuestionService.GetQuestionsAsync(questionCount);
 
-                foreach (var question in randomQuestions)
-                {
-                    Questions.Add(question);
-                }
-
-                _questionIndex = 0;
-                _score = 0;
-                if (Questions.Any())
-                {
-                    CurrentQuestion = Questions.First();
-                }
-            }
-            catch (Exception ex)
+            if (fetchedQuestions.Count < 5)
             {
-                Console.WriteLine(ex);
+                throw new InvalidOperationException("Le quiz nécessite au moins 5 questions.");
             }
+
+            _questions.AddRange(fetchedQuestions);
+            CurrentMode = mode;
+            QuestionCount = _questions.Count;
+            LoadQuestion(0);
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = ex.Message;
+            HasStatusMessage = true;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private void SelectAnswer(AnswerOption option)
+    {
+        if (CurrentQuestion is null || CanMoveNext)
+        {
+            return;
         }
 
-        [RelayCommand]
-        private void CheckAnswer(string selectedChoice)
+        foreach (var currentOption in AnswerOptions)
         {
-            if (CurrentQuestion is null)
-            {
-                // Question is null, don't proceed.
-                return;
-            }
+            currentOption.IsEnabled = false;
 
-            var correctAnswer = CurrentQuestion.Choices[CurrentQuestion.CorrectAnswerIndex];
-            if (selectedChoice == correctAnswer)
+            if (currentOption.IsCorrect)
             {
-                _score++;
-                //await Application.Current.MainPage.DisplayAlert("Résultat", "Bonne réponse!", "OK");
+                currentOption.BackgroundColor = Color.FromArgb("#2E7D32");
+            }
+            else if (ReferenceEquals(currentOption, option))
+            {
+                currentOption.BackgroundColor = Color.FromArgb("#C62828");
             }
             else
             {
-                //await Application.Current.MainPage.DisplayAlert("Résultat", "Mauvaise réponse!", "OK");
+                currentOption.BackgroundColor = Color.FromArgb("#90A4AE");
             }
-
-            RevealAnswers(CurrentQuestion.CorrectAnswerIndex);
-
-            //await ShowNextQuestionAsync();
-            AnswerSelected = true;
         }
 
-        private void RevealAnswers(int selectedIndex)
+        if (option.IsCorrect)
         {
-            // Réinitialiser tous les boutons à pleine opacité
-            OpacityButton1 = OpacityButton2 = OpacityButton3 = OpacityButton4 = 0.4;
-
-            // Réglez la bonne réponse à pleine opacité
-            switch (CurrentQuestion.CorrectAnswerIndex)
-            {
-                case 0: OpacityButton1 = 1.0; break;
-                case 1: OpacityButton2 = 1.0; break;
-                case 2: OpacityButton3 = 1.0; break;
-                case 3: OpacityButton4 = 1.0; break;
-            }
+            _correctAnswers++;
         }
 
-        [RelayCommand]
-        private async Task ShowNextQuestionAsync()
+        CanMoveNext = true;
+    }
+
+    [RelayCommand]
+    private async Task NextQuestionAsync()
+    {
+        if (_currentIndex < _questions.Count - 1)
         {
-            ResetAnswerState();
-            if (_questionIndex < Questions.Count - 1)
-            {
-                _questionIndex++;
-                CurrentQuestion = Questions[_questionIndex];
-                
-            }
-            else
-            {
-                // Quiz terminé
-                CurrentQuestion = null;
-                QuizStarted = false;
-                await Application.Current.MainPage.DisplayAlert("Quiz", "Le quiz est terminé. Votre score : " + _score, "OK");
-            }
+            LoadQuestion(_currentIndex + 1);
+            return;
         }
 
-        private void ResetAnswerState()
+        await SaveScoreAndExitAsync();
+    }
+
+    private async Task SaveScoreAndExitAsync()
+    {
+        var currentUser = _sessionService.CurrentUser;
+        if (currentUser is null)
         {
-            AnswerSelected = false;
-            OpacityButton1 = OpacityButton2 = OpacityButton3 = OpacityButton4 = 1;
-            //OnPropertyChanged(nameof(AnswerSelected));
+            await _navigator.ShowLoginAsync();
+            return;
         }
+
+        await _scoreRepository.AddAsync(new QuizScore
+        {
+            UserId = currentUser.Id,
+            QuizMode = CurrentMode,
+            QuestionCount = QuestionCount,
+            CorrectAnswers = _correctAnswers,
+            CompletedAtUtc = DateTime.UtcNow
+        });
+
+        await Microsoft.Maui.Controls.Application.Current!.Windows[0].Page!.DisplayAlertAsync(
+            "Quiz terminé",
+            $"Score : {_correctAnswers}/{QuestionCount}",
+            "OK");
+
+        await _navigator.GoBackAsync();
+    }
+
+    private void ResetState()
+    {
+        _questions.Clear();
+        AnswerOptions.Clear();
+        _currentIndex = 0;
+        _correctAnswers = 0;
+        CurrentQuestion = null;
+        CanMoveNext = false;
+        HasActiveQuestion = false;
+        StatusMessage = string.Empty;
+        HasStatusMessage = false;
+        ProgressText = string.Empty;
+    }
+
+    private void LoadQuestion(int index)
+    {
+        _currentIndex = index;
+        CurrentQuestion = _questions[index];
+        ProgressText = $"Question {index + 1} / {_questions.Count}";
+        CanMoveNext = false;
+        HasActiveQuestion = true;
+
+        AnswerOptions = new ObservableCollection<AnswerOption>(
+            CurrentQuestion.Choices.Select((choice, choiceIndex) => new AnswerOption
+            {
+                Text = choice,
+                IsCorrect = choiceIndex == CurrentQuestion.CorrectAnswerIndex,
+                BackgroundColor = Color.FromArgb(DefaultAnswerColors[choiceIndex % DefaultAnswerColors.Length])
+            }));
     }
 }

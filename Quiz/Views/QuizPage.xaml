@@ -1,94 +1,67 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:Quiz.ViewModels"
-             xmlns:converters="clr-namespace:Quiz.Converters"
              x:Class="Quiz.Views.QuizPage"
-             Title="Quiz"
-             x:DataType="vm:QuizViewModel">
+             Title="Quiz">
 
-    <ContentPage.Resources>
-        <ResourceDictionary>
-            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
-        </ResourceDictionary>
-    </ContentPage.Resources>
+    <Grid Padding="24" RowDefinitions="Auto,Auto,*" RowSpacing="18">
+        <VerticalStackLayout Grid.Row="0" Spacing="10">
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}" />
 
-    <StackLayout>
-        <Button Text="Démarrer le Quiz"
-                Command="{Binding StartQuizCommand}"
-                IsVisible="{Binding QuizStarted, Converter={StaticResource InverseBoolConverter}}" />
-
-        <Frame BackgroundColor="LightGray"
-               Padding="10"
-               CornerRadius="10"
-               Margin="0,20,0,20"
-               IsVisible="{Binding QuizStarted}">
-            <Label Text="{Binding CurrentQuestion.Text}"
+            <Label Text="{Binding ProgressText}"
                    FontAttributes="Bold"
-                   FontSize="Large"
-                   HorizontalOptions="Center"
-                   VerticalOptions="CenterAndExpand" />
-        </Frame>
+                   FontSize="18" />
 
-        <!-- La grille pour les boutons de réponse -->
-        <Grid IsVisible="{Binding QuizStarted}"
-              RowDefinitions="*,*"
-              ColumnDefinitions="*,*"
-              Padding="10"
-              HorizontalOptions="FillAndExpand">
+            <Border Padding="16"
+                    StrokeThickness="1"
+                    IsVisible="{Binding HasActiveQuestion}"
+                    Stroke="{AppThemeBinding Light=#DDDDDD, Dark=#444444}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="{Binding CurrentQuestion.Category}"
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light=#666666, Dark=#CCCCCC}" />
+                    <Label Text="{Binding CurrentQuestion.Text}"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
 
-            <!-- Bouton en haut à gauche -->
-            <Button Text="{Binding CurrentQuestion.Choices[0]}"
-                    Command="{Binding CheckAnswerCommand}"
-                    CommandParameter="{Binding CurrentQuestion.Choices[0]}"
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    HorizontalOptions="FillAndExpand"
-                    VerticalOptions="FillAndExpand"
-                    Margin="10"
-                    Opacity="{Binding OpacityButton1}"
-                    BackgroundColor="#FF3B30"/>
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding AnswerOptions}"
+                        IsVisible="{Binding HasActiveQuestion}"
+                        SelectionMode="None"
+                        HeightRequest="340">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="14" VerticalItemSpacing="14" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Button Text="{Binding Text}"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            FontSize="18"
+                            Padding="14"
+                            CornerRadius="18"
+                            HeightRequest="150"
+                            BackgroundColor="{Binding BackgroundColor}"
+                            IsEnabled="{Binding IsEnabled}"
+                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectAnswerCommand}"
+                            CommandParameter="{Binding .}" />
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
-            <!-- Bouton en haut à droite -->
-            <Button Text="{Binding CurrentQuestion.Choices[1]}"
-                    Command="{Binding CheckAnswerCommand}"
-                    CommandParameter="{Binding CurrentQuestion.Choices[1]}"
-                    Grid.Row="0"
-                    Grid.Column="1"
-                    HorizontalOptions="FillAndExpand"
-                    VerticalOptions="FillAndExpand"
-                    Margin="10"
-                    Opacity="{Binding OpacityButton2}"
-                    BackgroundColor="#FFCC00"/>
+        <VerticalStackLayout Grid.Row="2" Spacing="12" VerticalOptions="End">
+            <Button Text="Question suivante"
+                    Command="{Binding NextQuestionCommand}"
+                    IsVisible="{Binding CanMoveNext}" />
 
-            <!-- Bouton en bas à gauche -->
-            <Button Text="{Binding CurrentQuestion.Choices[2]}"
-                    Command="{Binding CheckAnswerCommand}"
-                    CommandParameter="{Binding CurrentQuestion.Choices[2]}"
-                    Grid.Row="1"
-                    Grid.Column="0"
-                    HorizontalOptions="FillAndExpand"
-                    VerticalOptions="FillAndExpand"
-                    Margin="10"
-                    Opacity="{Binding OpacityButton3}"
-                    BackgroundColor="#007AFF"/>
-
-            <!-- Bouton en bas à droite -->
-            <Button Text="{Binding CurrentQuestion.Choices[3]}"
-                    Command="{Binding CheckAnswerCommand}"
-                    CommandParameter="{Binding CurrentQuestion.Choices[3]}"
-                    Grid.Row="1"
-                    Grid.Column="1"
-                    HorizontalOptions="FillAndExpand"
-                    VerticalOptions="FillAndExpand"
-                    Margin="10"
-                    Opacity="{Binding OpacityButton4}"
-                    BackgroundColor="#4CD964"/>
-
-        </Grid>
-
-        <Button Text="Suivant"
-                Command="{Binding ShowNextQuestionCommand}"
-                IsVisible="{Binding AnswerSelected}" />
-    </StackLayout>
+            <Label Text="{Binding StatusMessage}"
+                   TextColor="Tomato"
+                   IsVisible="{Binding HasStatusMessage}" />
+        </VerticalStackLayout>
+    </Grid>
 </ContentPage>

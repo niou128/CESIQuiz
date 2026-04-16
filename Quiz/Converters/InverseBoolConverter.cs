@@ -1,23 +1,26 @@
-﻿using System.Globalization;
+using System.Globalization;
 
-namespace Quiz.Converters
+namespace Quiz.Converters;
+
+public sealed class InverseBoolConverter : IValueConverter
 {
-    public class InverseBoolConverter : IValueConverter
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        if (value is bool boolValue)
         {
-            if (value is bool boolValue)
-                return !boolValue;
-
-            return value;
+            return !boolValue;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value is bool boolValue)
-                return !boolValue;
+        return value;
+    }
 
-            return value;
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is bool boolValue)
+        {
+            return !boolValue;
         }
+
+        return value;
     }
 }

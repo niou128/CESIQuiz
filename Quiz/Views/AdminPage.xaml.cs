@@ -1,12 +1,12 @@
 ﻿using Quiz.ViewModels;
 
-namespace Quiz;
+namespace Quiz.Views;
 
-public partial class MainPage : ContentPage
+public partial class AdminPage : ContentPage
 {
-    private readonly DashboardViewModel _viewModel;
+    private readonly AdminViewModel _viewModel;
 
-    public MainPage(DashboardViewModel viewModel)
+    public AdminPage(AdminViewModel viewModel)
     {
         InitializeComponent();
         BindingContext = _viewModel = viewModel;
